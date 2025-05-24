@@ -7,6 +7,8 @@ warnings.filterwarnings("ignore")
 import shap
 import joblib
 
+import sklearn
+print(sklearn.__version__)
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
