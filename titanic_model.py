@@ -21,6 +21,44 @@ train_df = pd.read_csv("dataset/train.csv")
 test_df = pd.read_csv("dataset/test.csv")
 submission_df = pd.read_csv("dataset/gender_submission.csv")
 
+# Data Overview
+print("Train shape:", train_df.shape)
+print("Test shape:", test_df.shape)
+print("\nTrain Info:")
+print(train_df.info())
+print("\nMissing Values:")
+print(train_df.isnull().sum())
+
+# Descriptive Stats
+print("\nTrain Describe:")
+print(train_df.describe())
+
+# Target Variable Distribution
+sns.countplot(x='Survived', data=train_df)
+plt.title("Survival Count")
+plt.xlabel("Survived (0 = No, 1 = Yes)")
+plt.ylabel("Count")
+plt.show()
+
+# Histplot
+sns.histplot(data=train_df, x='Age', hue='Survived', kde=True, bins=30)
+plt.title("Age Distribution by Survival")
+plt.show()
+
+# Correlation HeatMap
+plt.figure(figsize=(10, 6))
+sns.heatmap(train_df.corr(numeric_only=True), annot=True, cmap='coolwarm')
+plt.title("Correlation Heatmap")
+plt.show()
+
+# Selecting relevant numerical features for pairplot
+pairplot_features = ['Survived', 'Pclass', 'Age', 'Fare', 'SibSp', 'Parch']
+
+# Drop NaNs just for visualization
+sns.pairplot(train_df[pairplot_features].dropna(), hue='Survived', palette='Set1', diag_kind='kde')
+plt.suptitle("Pairplot of Selected Features Colored by Survival", y=1.02)
+plt.show()
+
 # Combine train and test for feature engineering
 data = pd.concat([train_df, test_df], sort=False)
 
@@ -109,6 +147,20 @@ voting_clf.fit(X_train, y_train)
 # Validation accuracy for voting model
 y_pred_voting = voting_clf.predict(X_val)
 print("Voting Classifier Accuracy:", accuracy_score(y_val, y_pred_voting))
+
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+# Confusion matrix
+cm = confusion_matrix(y_val, y_pred_voting)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Not Survived", "Survived"])
+disp.plot(cmap=plt.cm.Blues)
+plt.title("Confusion Matrix - Voting Classifier")
+plt.show()
+
+# Classification report
+from sklearn.metrics import classification_report
+print("Classification Report:\n")
+print(classification_report(y_val, y_pred_voting, target_names=["Not Survived", "Survived"]))
 
 # Final predictions on test data
 final_preds = voting_clf.predict(X_test_final)
